@@ -1,0 +1,25 @@
+{
+  "name": "recovery-agent",
+  "version": "1.0.0",
+  "description": "Post-failure recovery system - helps users restart goals after falling off",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "echo 'Run: cd backend && npm start & cd frontend && npm run dev'",
+    "start-backend": "cd backend && npm start",
+    "start-frontend": "cd frontend && npm run dev"
+  },
+  "keywords": [
+    "recovery",
+    "goals",
+    "failure",
+    "opik",
+    "llm",
+    "tracing"
+  ],
+  "author": "Recovery Agent Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/dayzero"
+  }
+}
