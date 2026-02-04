@@ -172,8 +172,107 @@
   background-color: #e5e7eb;
 }
 
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    padding: 24px 20px;
+    padding-top: 32px;
+  }
+
+  .wrapper {
+    padding: 28px;
+    max-width: 650px;
+  }
+}
+
 @media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+    padding-top: 24px;
+  }
+
+  .wrapper {
+    padding: 24px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
   .gridTwoCols {
     grid-template-columns: 1fr;
+  }
+
+  .selectGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 12px;
+    padding-top: 20px;
+  }
+
+  .wrapper {
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .label {
+    font-size: 13px;
+  }
+
+  .selectGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .selectOption {
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  .textarea {
+    font-size: 15px;
+    min-height: 80px;
+  }
+
+  .select {
+    font-size: 15px;
+  }
+
+  .submitButton,
+  .cancelButton {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .form {
+    gap: 18px;
+  }
+
+  .formGroup {
+    gap: 10px;
   }
 }

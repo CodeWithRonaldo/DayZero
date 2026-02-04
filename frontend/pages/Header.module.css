@@ -14,6 +14,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+}
+
+.logoSection {
+  z-index: 60;
 }
 
 .logoButton {
@@ -37,6 +42,35 @@
   font-weight: 700;
   color: #1f2937;
   margin: 0;
+}
+
+/* Hamburger menu button - hidden on desktop */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #1f2937;
+  z-index: 60;
+  transition: all 0.2s;
+}
+
+.hamburger:hover {
+  color: #5b21b6;
+}
+
+/* Mobile user section - hidden on desktop */
+.mobileUserSection {
+  display: none;
+}
+
+.mobileUserInfo {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
 }
 
 .nav {
@@ -136,4 +170,149 @@
 
 .logoutButton:hover {
   background-color: #dc2626;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    padding: 12px 20px;
+  }
+
+  .nav {
+    gap: 4px;
+  }
+
+  .navLink,
+  .navLinkPrimary {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .userSection {
+    gap: 12px;
+  }
+}
+
+/* Mobile Hamburger Menu */
+@media (max-width: 768px) {
+  .container {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  /* Show hamburger button */
+  .hamburger {
+    display: block;
+    order: 2;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+
+  /* Hide desktop user section */
+  .userSection {
+    display: none;
+  }
+
+  /* Mobile navigation */
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Open state for mobile nav */
+  .navOpen {
+    max-height: 500px;
+    opacity: 1;
+    padding: 8px 0;
+  }
+
+  .navLink,
+  .navLinkPrimary {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 24px;
+    border-radius: 0;
+    font-size: 16px;
+  }
+
+  .navLinkPrimary {
+    background-color: transparent;
+    color: #5b21b6;
+    font-weight: 600;
+  }
+
+  .navLinkPrimary:hover {
+    background-color: #f3f4f6;
+  }
+
+  /* Show mobile user section in nav */
+  .mobileUserSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    background-color: #f9fafb;
+  }
+
+  .mobileUserInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  .mobileUserSection .userName {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .mobileUserSection .userEmail {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .mobileUserSection .logoutButton {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 12px 16px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .logoButton {
+    gap: 8px;
+  }
+
+  .navLink,
+  .navLinkPrimary {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
 }

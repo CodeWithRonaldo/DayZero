@@ -68,3 +68,45 @@ textarea {
   resize: vertical;
   min-height: 80px;
 }
+
+/* Mobile-friendly touch targets and text sizing */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    /* Prevents iOS zoom on focus */
+  }
+
+  button {
+    min-height: 44px;
+    /* Minimum touch target size for mobile */
+    font-size: 0.95rem;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+    /* Prevents iOS zoom on focus */
+    min-height: 44px;
+  }
+
+  textarea {
+    min-height: 80px;
+  }
+}
+
+@media (max-width: 640px) {
+  button {
+    padding: 12px 20px;
+  }
+}
+
+/* Improve tap highlighting on mobile */
+* {
+  -webkit-tap-highlight-color: rgba(91, 33, 182, 0.1);
+}
+
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

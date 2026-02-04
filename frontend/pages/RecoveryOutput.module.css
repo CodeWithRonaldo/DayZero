@@ -224,3 +224,181 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    padding: 24px 20px;
+  }
+
+  .content {
+    max-width: 650px;
+  }
+
+  .card {
+    padding: 28px;
+  }
+
+  .feedbackSection {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+  }
+
+  .content {
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .card {
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .badges {
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 13px;
+    padding: 4px 10px;
+  }
+
+  .sectionTitle {
+    font-size: 15px;
+  }
+
+  .stepText {
+    font-size: 17px;
+  }
+
+  .descriptionText {
+    font-size: 15px;
+  }
+
+  .feedbackSection {
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .feedbackGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .feedbackButton {
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .primaryButton {
+    padding: 14px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 12px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .badges {
+    justify-content: flex-start;
+  }
+
+  .badge {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .stepText {
+    font-size: 16px;
+  }
+
+  .descriptionText {
+    font-size: 14px;
+  }
+
+  .warning,
+  .infoBox {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .warningText,
+  .infoText {
+    font-size: 13px;
+  }
+
+  .feedbackSection {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .feedbackLabel {
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .feedbackGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .feedbackButton {
+    padding: 12px;
+    font-size: 14px;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .successMessage {
+    font-size: 14px;
+  }
+
+  .primaryButton {
+    padding: 14px;
+    font-size: 15px;
+  }
+}

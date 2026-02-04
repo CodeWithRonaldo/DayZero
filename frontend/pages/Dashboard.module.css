@@ -253,3 +253,147 @@
   color: #6b7280;
   margin: 0 0 24px 0;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    padding: 24px 20px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .recentSection {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .primaryButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .statCard {
+    padding: 20px;
+  }
+
+  .statValue {
+    font-size: 36px;
+  }
+
+  .recentSection {
+    padding: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .recoveryCard {
+    padding: 16px;
+  }
+
+  .recoveryCardHeader {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .recoveryFooter {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 12px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .statsGrid {
+    margin-bottom: 20px;
+  }
+
+  .statCard {
+    padding: 16px;
+  }
+
+  .statValue {
+    font-size: 32px;
+  }
+
+  .statLabel {
+    font-size: 14px;
+  }
+
+  .recentSection {
+    padding: 16px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
+  .recoveryCard {
+    padding: 14px;
+  }
+
+  .recoveryDomain {
+    font-size: 15px;
+  }
+
+  .recoveryText {
+    font-size: 15px;
+  }
+
+  .emptyState {
+    padding: 32px 16px;
+  }
+
+  .emptyTitle {
+    font-size: 20px;
+  }
+
+  .emptyText {
+    font-size: 14px;
+  }
+}
