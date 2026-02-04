@@ -116,17 +116,48 @@ app.post("/api/generate", async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
+// Feedback endpoint - MUST be before app.listen()
+app.post("/feedback", async (req, res) => {
+  const { trace_id, primary_feedback } = req.body;
+
+  console.log("[FEEDBACK]", { trace_id, primary_feedback });
+
+  // Log feedback to Opik (if trace_id exists)
+  let feedbackLogged = false;
+  if (trace_id) {
+    try {
+      // Map feedback types to numeric scores
+      const feedbackScoreMap = {
+        helpful: 1.0,
+        did_it: 1.0,
+        too_much: 0.5,
+        doesnt_fit: 0.3,
+      };
+
+      const score = feedbackScoreMap[primary_feedback] || 0.5;
+
+      // Log feedback score to Opik using the SDK
+      await opikClient.logTracesFeedbackScores([
+        {
+          id: trace_id,
+          name: "user_feedback",
+          value: score,
+          reason: primary_feedback,
+        },
+      ]);
+
+      feedbackLogged = true;
+      console.log("[FEEDBACK] Successfully logged to Opik");
+    } catch (error) {
+      console.error("[FEEDBACK] Error logging to Opik:", error);
+      // Don't fail the request if Opik logging fails
+    }
   }
 
-  next();
+  res.json({ success: true, feedback_logged: feedbackLogged });
 });
+
 // Helper function to extract structured data from markdown response
 function extractSectionsFromMarkdown(text) {
   const result = {
@@ -175,47 +206,8 @@ function extractSectionsFromMarkdown(text) {
   return result;
 }
 
+// Start server - MUST be at the end after all routes are defined
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`API running on port ${PORT}`);
-});
-
-app.post("/feedback", async (req, res) => {
-  const { trace_id, primary_feedback } = req.body;
-
-  console.log("[FEEDBACK]", { trace_id, primary_feedback });
-
-  // Log feedback to Opik (if trace_id exists)
-  let feedbackLogged = false;
-  if (trace_id) {
-    try {
-      // Map feedback types to numeric scores
-      const feedbackScoreMap = {
-        helpful: 1.0,
-        did_it: 1.0,
-        too_much: 0.5,
-        doesnt_fit: 0.3,
-      };
-
-      const score = feedbackScoreMap[primary_feedback] || 0.5;
-
-      // Log feedback score to Opik using the SDK
-      await opikClient.logTracesFeedbackScores([
-        {
-          id: trace_id,
-          name: "user_feedback",
-          value: score,
-          reason: primary_feedback,
-        },
-      ]);
-
-      feedbackLogged = true;
-      console.log("[FEEDBACK] Successfully logged to Opik");
-    } catch (error) {
-      console.error("[FEEDBACK] Error logging to Opik:", error);
-      // Don't fail the request if Opik logging fails
-    }
-  }
-
-  res.json({ success: true, feedback_logged: feedbackLogged });
+  console.log(`✅ API server running on port ${PORT}`);
 });
