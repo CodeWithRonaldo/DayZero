@@ -2,7 +2,8 @@
   min-height: 100vh;
   display: flex;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .background {
@@ -49,6 +50,7 @@
   align-items: center;
   max-width: 1400px;
   margin: 0 auto;
+  
 }
 
 .branding {
@@ -186,6 +188,7 @@
   flex-direction: column;
   gap: 24px;
   margin-bottom: 24px;
+  
 }
 
 .formGroup {
@@ -430,6 +433,7 @@
 @media (max-width: 768px) {
   .container {
     min-height: 100vh;
+    height: auto;
   }
 
   .content {
@@ -489,8 +493,9 @@
 @media (max-width: 640px) {
   .container {
     min-height: 100vh;
+    height: auto;
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
   }
 
   .content {
