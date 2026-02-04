@@ -1,80 +1,75 @@
 import { useNavigate } from "react-router-dom";
-// import "./App.css";
+import { Target, TrendingUp, Clock, Zap } from "lucide-react";
+import styles from "./Landing.module.css";
 
 function Landing() {
   const navigate = useNavigate();
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Recovery Agent</h1>
-        <p style={styles.subtitle}>
-          Get help restarting a goal after you've already fallen off.
+    <div className={styles.container}>
+      <div className={styles.hero}>
+        <div className={styles.badge}>AI-Powered Goal Recovery</div>
+
+        <h1 className={styles.title}>
+          Get Back on Track.<br />Stay There.
+        </h1>
+
+        <p className={styles.subtitle}>
+          Personalized recovery steps powered by AI to help you restart abandoned goals
+          and build lasting habits, one step at a time.
         </p>
-        <button
-          style={{
-            ...styles.button,
-            backgroundColor: "#2563eb",
-            color: "white",
-          }}
-          onClick={() => navigate("/form")}
-        >
-          Get a recovery step
-        </button>
-        <button
-          style={{
-            ...styles.button,
-            backgroundColor: "#e5e7eb",
-            color: "#1f2937",
-          }}
-          onClick={() => navigate("/history")}
-        >
-          View history
-        </button>
+
+        <div className={styles.ctaButtons}>
+          <button
+            className={styles.primaryButton}
+            onClick={() => navigate("/form")}
+          >
+            <Zap size={20} />
+            Start Your Recovery
+          </button>
+          <button
+            className={styles.secondaryButton}
+            onClick={() => navigate("/history")}
+          >
+            <TrendingUp size={20} />
+            View History
+          </button>
+        </div>
+
+        <div className={styles.features}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <Target size={24} />
+            </div>
+            <h3 className={styles.featureTitle}>Personalized Steps</h3>
+            <p className={styles.featureDescription}>
+              Get tailored recovery actions based on why you stopped and how much time you have.
+            </p>
+          </div>
+
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <Clock size={24} />
+            </div>
+            <h3 className={styles.featureTitle}>Time-Boxed Actions</h3>
+            <p className={styles.featureDescription}>
+              Clear, actionable steps that fit your schedule—no overwhelming commitments.
+            </p>
+          </div>
+
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <TrendingUp size={24} />
+            </div>
+            <h3 className={styles.featureTitle}>Track Progress</h3>
+            <p className={styles.featureDescription}>
+              Monitor your recovery journey and see your success rate improve over time.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: "20px",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    padding: "40px",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
-    maxWidth: "500px",
-    textAlign: "center",
-  },
-  title: {
-    fontSize: "2.5rem",
-    marginBottom: "16px",
-    color: "#1f2937",
-  },
-  subtitle: {
-    fontSize: "1.1rem",
-    color: "#6b7280",
-    marginBottom: "32px",
-    lineHeight: "1.6",
-  },
-  button: {
-    display: "block",
-    width: "100%",
-    padding: "14px",
-    marginBottom: "12px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "1rem",
-    fontWeight: "600",
-    transition: "all 0.2s",
-  },
-};
 
 export default Landing;

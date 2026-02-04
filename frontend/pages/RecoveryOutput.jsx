@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ThumbsUp, AlertCircle, CheckCircle, Star, Home } from "lucide-react";
+import { trackingService } from "../trackingService.js";
+import styles from "./RecoveryOutput.module.css";
 
 function RecoveryOutput({ onAddHistory }) {
   const location = useLocation();
@@ -8,15 +11,12 @@ function RecoveryOutput({ onAddHistory }) {
   const [feedbackSent, setFeedbackSent] = useState(false);
 
   useEffect(() => {
-    // Get recovery data from session storage or route state
     const sessionData = sessionStorage.getItem("lastRecovery");
     const routeState = location.state;
-
     const data = routeState || (sessionData ? JSON.parse(sessionData) : null);
 
     if (data) {
       setRecovery(data);
-      // Add to history
       onAddHistory({
         date: new Date().toISOString(),
         domain: data.domain,
@@ -33,7 +33,8 @@ function RecoveryOutput({ onAddHistory }) {
     if (!recovery) return;
 
     try {
-      const response = await fetch("http://localhost:3002/feedback", {
+      // Send feedback to backend
+      const response = await fetch("http://localhost:3000/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -42,10 +43,17 @@ function RecoveryOutput({ onAddHistory }) {
         }),
       });
 
+      // Track feedback submission
+      trackingService.trackFeedbackSubmitted(
+        recovery.sessionId,
+        recovery.trace_id,
+        feedback,
+      );
+
       if (response.ok) {
         setFeedbackSent(true);
         setTimeout(() => {
-          navigate("/");
+          navigate("/dashboard");
         }, 2000);
       }
     } catch (error) {
@@ -54,237 +62,123 @@ function RecoveryOutput({ onAddHistory }) {
   };
 
   if (!recovery) {
-    return <div style={styles.loading}>Loading...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner} />
+      </div>
+    );
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.header}>
-          <h2 style={styles.title}>Your Recovery Step</h2>
-          <div style={styles.metadata}>
-            <span style={styles.badge}>{recovery.failure_type}</span>
-            <span style={styles.badge}>{recovery.strategy}</span>
-          </div>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Your Recovery Step</h1>
+          <p className={styles.subtitle}>Here's what we recommend you try</p>
         </div>
 
-        <div style={styles.content}>
-          <div style={styles.section}>
-            <h3 style={styles.sectionTitle}>Next Step</h3>
-            <p style={styles.text}>{recovery.next_step}</p>
+        <div className={styles.card}>
+          <div className={styles.badges}>
+            <span className={styles.badge}>{recovery.domain}</span>
+            <span className={styles.badge}>{recovery.strategy}</span>
           </div>
 
-          <div style={styles.section}>
-            <h3 style={styles.sectionTitle}>Stop Condition</h3>
-            <p style={styles.text}>{recovery.stop_condition}</p>
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Next Step</h3>
+            <p className={styles.stepText}>{recovery.next_step}</p>
           </div>
 
-          <div style={styles.section}>
-            <h3 style={styles.sectionTitle}>Why This Works</h3>
-            <p style={styles.text}>{recovery.rationale}</p>
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>When to Stop</h3>
+            <p className={styles.descriptionText}>{recovery.stop_condition}</p>
+          </div>
+
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Why This Works</h3>
+            <p className={styles.descriptionText}>{recovery.rationale}</p>
           </div>
 
           {recovery.safety_note && (
-            <div style={styles.warning}>
-              <p style={styles.warningText}>⚠️ {recovery.safety_note}</p>
+            <div className={styles.warning}>
+              <span className={styles.warningIcon}>⚠️</span>
+              <p className={styles.warningText}>{recovery.safety_note}</p>
             </div>
           )}
 
           {recovery.capacity_minutes && (
-            <div style={styles.info}>
-              <p>
-                You said you have{" "}
-                <strong>{recovery.capacity_minutes} minutes</strong>. This fits.
+            <div className={styles.infoBox}>
+              <span className={styles.infoIcon}>✓</span>
+              <p className={styles.infoText}>
+                This fits within your {recovery.capacity_minutes}-minute window
               </p>
             </div>
           )}
         </div>
 
-        <div style={styles.feedbackSection}>
-          <p style={styles.feedbackLabel}>Was this helpful?</p>
-          <div style={styles.feedbackButtons}>
-            <button
+        <div className={styles.feedbackSection}>
+          <p className={styles.feedbackLabel}>How does this feel?</p>
+          <div className={styles.feedbackGrid}>
+            <FeedbackButton
+              label="Helpful"
+              icon={ThumbsUp}
               onClick={() => handleFeedback("helpful")}
-              style={{ ...styles.feedbackBtn, backgroundColor: "#10b981" }}
               disabled={feedbackSent}
-            >
-              Helpful
-            </button>
-            <button
+            />
+            <FeedbackButton
+              label="Too Much"
+              icon={AlertCircle}
               onClick={() => handleFeedback("too_much")}
-              style={{ ...styles.feedbackBtn, backgroundColor: "#f59e0b" }}
               disabled={feedbackSent}
-            >
-              Too much
-            </button>
-            <button
+            />
+            <FeedbackButton
+              label="Doesn't Fit"
+              icon={CheckCircle}
               onClick={() => handleFeedback("doesnt_fit")}
-              style={{ ...styles.feedbackBtn, backgroundColor: "#ef4444" }}
               disabled={feedbackSent}
-            >
-              Doesn't fit
-            </button>
-            <button
+            />
+            <FeedbackButton
+              label="I Did It!"
+              icon={Star}
               onClick={() => handleFeedback("did_it")}
-              style={{ ...styles.feedbackBtn, backgroundColor: "#8b5cf6" }}
               disabled={feedbackSent}
-            >
-              I did it
-            </button>
-            <button
-              onClick={() => handleFeedback("started")}
-              style={{ ...styles.feedbackBtn, backgroundColor: "#06b6d4" }}
-              disabled={feedbackSent}
-            >
-              I started
-            </button>
+            />
           </div>
+
           {feedbackSent && (
-            <p style={styles.successMsg}>✓ Thank you! Redirecting...</p>
+            <div className={styles.successMessage}>
+              <span>✓ Thanks for your feedback!</span>
+            </div>
           )}
         </div>
 
         <button
-          onClick={() => navigate("/")}
-          style={styles.backBtn}
+          onClick={() => navigate("/dashboard")}
+          className={styles.primaryButton}
           disabled={feedbackSent}
         >
-          ← Back home
+          <Home size={18} />
+          Back to Dashboard
         </button>
       </div>
     </div>
   );
 }
 
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: "20px",
-  },
-  loading: {
-    textAlign: "center",
-    fontSize: "1.2rem",
-    color: "#6b7280",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    padding: "40px",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
-    maxWidth: "700px",
-    width: "100%",
-  },
-  header: {
-    marginBottom: "28px",
-    borderBottom: "2px solid #e5e7eb",
-    paddingBottom: "20px",
-  },
-  title: {
-    fontSize: "2rem",
-    color: "#1f2937",
-    marginBottom: "12px",
-  },
-  metadata: {
-    display: "flex",
-    gap: "8px",
-    flexWrap: "wrap",
-  },
-  badge: {
-    display: "inline-block",
-    backgroundColor: "#dbeafe",
-    color: "#1e40af",
-    padding: "4px 12px",
-    borderRadius: "20px",
-    fontSize: "0.85rem",
-    fontWeight: "600",
-  },
-  content: {
-    marginBottom: "28px",
-  },
-  section: {
-    marginBottom: "20px",
-  },
-  sectionTitle: {
-    fontSize: "1rem",
-    fontWeight: "700",
-    color: "#374151",
-    marginBottom: "8px",
-  },
-  text: {
-    fontSize: "1rem",
-    lineHeight: "1.6",
-    color: "#6b7280",
-    backgroundColor: "#f9fafb",
-    padding: "12px",
-    borderRadius: "6px",
-    borderLeft: "4px solid #2563eb",
-  },
-  warning: {
-    backgroundColor: "#fef3c7",
-    border: "1px solid #fbbf24",
-    borderRadius: "6px",
-    padding: "12px",
-    marginTop: "12px",
-  },
-  warningText: {
-    fontSize: "0.9rem",
-    color: "#92400e",
-    margin: 0,
-  },
-  info: {
-    backgroundColor: "#f0f9ff",
-    border: "1px solid #bae6fd",
-    borderRadius: "6px",
-    padding: "12px",
-    marginTop: "12px",
-    fontSize: "0.95rem",
-    color: "#0c4a6e",
-  },
-  feedbackSection: {
-    borderTop: "2px solid #e5e7eb",
-    paddingTop: "20px",
-    marginBottom: "20px",
-  },
-  feedbackLabel: {
-    fontSize: "0.95rem",
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: "12px",
-  },
-  feedbackButtons: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
-    gap: "8px",
-    marginBottom: "12px",
-  },
-  feedbackBtn: {
-    padding: "10px",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "0.9rem",
-    fontWeight: "600",
-    transition: "all 0.2s",
-  },
-  successMsg: {
-    color: "#059669",
-    fontSize: "0.9rem",
-    fontWeight: "600",
-  },
-  backBtn: {
-    backgroundColor: "#e5e7eb",
-    color: "#1f2937",
-    padding: "12px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    width: "100%",
-    fontWeight: "600",
-  },
-};
+function FeedbackButton({ label, icon: Icon, onClick, disabled }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={styles.feedbackButton}
+      style={{
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+    >
+      <Icon size={24} />
+      <span>{label}</span>
+    </button>
+  );
+}
 
 export default RecoveryOutput;

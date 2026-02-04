@@ -1,158 +1,114 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, FileText } from "lucide-react";
+import { trackingService } from "../trackingService.js";
+import styles from "./History.module.css";
 
 function History({ entries }) {
   const navigate = useNavigate();
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
-    return (
-      date.toLocaleDateString() +
-      " " +
-      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    );
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
-  const getFeedbackColor = (feedback) => {
-    const colors = {
-      helpful: "#10b981",
-      too_much: "#f59e0b",
-      doesnt_fit: "#ef4444",
-      did_it: "#8b5cf6",
-      started: "#06b6d4",
+  const getFeedbackConfig = (feedback) => {
+    const configs = {
+      helpful: { color: "#10b981", label: "✓ Helpful" },
+      too_much: { color: "#f59e0b", label: "Too Much" },
+      doesnt_fit: { color: "#ef4444", label: "Doesn't Fit" },
+      did_it: { color: "#5b21b6", label: "✓ Did It" },
+      started: { color: "#6b7280", label: "Started" },
     };
-    return colors[feedback] || "#9ca3af";
+    return configs[feedback] || { color: "#9ca3af", label: feedback };
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Recovery History</h2>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>Recovery History</h1>
+            <p className={styles.subtitle}>
+              {entries.length} recovery steps tracked
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className={styles.backButton}
+          >
+            <ArrowLeft size={18} />
+            Back
+          </button>
+        </div>
 
         {entries.length === 0 ? (
-          <p style={styles.empty}>No recovery attempts yet. Get started!</p>
+          <div className={styles.emptyState}>
+            <FileText size={48} className={styles.emptyIcon} />
+            <h3 className={styles.emptyTitle}>No history yet</h3>
+            <p className={styles.emptyText}>
+              Start creating recovery steps to see them appear here
+            </p>
+            <button
+              onClick={() => navigate("/new")}
+              className={styles.primaryButton}
+            >
+              Create Recovery Step
+            </button>
+          </div>
         ) : (
-          <div style={styles.list}>
+          <div className={styles.timeline}>
             {entries.map((entry, idx) => (
-              <div key={idx} style={styles.entry}>
-                <div style={styles.entryHeader}>
-                  <div style={styles.entryInfo}>
-                    <span style={styles.domain}>{entry.domain}</span>
-                    <span style={styles.date}>{formatDate(entry.date)}</span>
-                  </div>
-                  {entry.feedback && (
-                    <span
-                      style={{
-                        ...styles.feedback,
-                        backgroundColor: getFeedbackColor(entry.feedback),
-                      }}
-                    >
-                      {entry.feedback.replace("_", " ")}
-                    </span>
-                  )}
-                </div>
-                <p style={styles.strategy}>Strategy: {entry.strategy}</p>
-                {entry.trace_id && (
-                  <small style={styles.traceId}>
-                    Trace: {entry.trace_id.substring(0, 8)}...
-                  </small>
-                )}
-              </div>
+              <HistoryEntry
+                key={idx}
+                entry={entry}
+                getFeedbackConfig={getFeedbackConfig}
+                formatDate={formatDate}
+              />
             ))}
           </div>
         )}
-
-        <button onClick={() => navigate("/")} style={styles.backBtn}>
-          ← Back home
-        </button>
       </div>
     </div>
   );
 }
 
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: "20px",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    padding: "40px",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
-    maxWidth: "700px",
-    width: "100%",
-    maxHeight: "80vh",
-    overflowY: "auto",
-  },
-  title: {
-    fontSize: "2rem",
-    marginBottom: "24px",
-    color: "#1f2937",
-  },
-  empty: {
-    textAlign: "center",
-    color: "#9ca3af",
-    padding: "40px 0",
-    fontSize: "1rem",
-  },
-  list: {
-    marginBottom: "24px",
-  },
-  entry: {
-    borderLeft: "4px solid #2563eb",
-    backgroundColor: "#f9fafb",
-    padding: "16px",
-    marginBottom: "12px",
-    borderRadius: "6px",
-  },
-  entryHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "8px",
-  },
-  entryInfo: {
-    display: "flex",
-    gap: "12px",
-    alignItems: "center",
-  },
-  domain: {
-    fontWeight: "600",
-    color: "#1f2937",
-  },
-  date: {
-    fontSize: "0.85rem",
-    color: "#9ca3af",
-  },
-  feedback: {
-    color: "white",
-    padding: "4px 8px",
-    borderRadius: "12px",
-    fontSize: "0.75rem",
-    fontWeight: "600",
-  },
-  strategy: {
-    fontSize: "0.9rem",
-    color: "#6b7280",
-    margin: "4px 0",
-  },
-  traceId: {
-    color: "#9ca3af",
-    fontSize: "0.75rem",
-  },
-  backBtn: {
-    backgroundColor: "#e5e7eb",
-    color: "#1f2937",
-    padding: "12px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    width: "100%",
-    fontWeight: "600",
-  },
-};
+function HistoryEntry({ entry, getFeedbackConfig, formatDate }) {
+  const feedback = entry.feedback ? getFeedbackConfig(entry.feedback) : null;
+
+  return (
+    <div className={styles.entryCard}>
+      <div className={styles.entryHeader}>
+        <div className={styles.entryMeta}>
+          <h3 className={styles.entryDomain}>{entry.domain}</h3>
+          <p className={styles.entryDate}>{formatDate(entry.date)}</p>
+        </div>
+        {feedback && (
+          <span
+            className={styles.feedbackBadge}
+            style={{
+              backgroundColor: feedback.color + "15",
+              color: feedback.color,
+            }}
+          >
+            {feedback.label}
+          </span>
+        )}
+      </div>
+      <p className={styles.entryStrategy}>{entry.strategy}</p>
+      <p className={styles.entryStep}>{entry.next_step}</p>
+      {entry.trace_id && (
+        <p className={styles.traceId}>
+          ID: {entry.trace_id.substring(0, 8)}...
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default History;

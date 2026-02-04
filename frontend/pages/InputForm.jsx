@@ -1,226 +1,239 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { trackingService } from "../trackingService.js";
+import styles from "./InputForm.module.css";
 
-function InputForm() {
+function InputForm({ user }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     domain: "Work",
     goal: "",
     time_gap: "1-2 days",
     reason: "Low energy / burnout",
-    capacity: "5",
+    capacity: "30",
   });
+
+  const domains = ["Work", "Learning", "Health", "Financial"];
+  const timeGaps = ["< 1 day", "1-2 days", "1-2 weeks", "> 1 month"];
+  const reasons = [
+    "Low energy / burnout",
+    "Lost interest",
+    "External obstacles",
+    "Lack of progress",
+    "Other",
+  ];
+  const capacities = [
+    { value: "15", label: "15 minutes" },
+    { value: "30", label: "30 minutes" },
+    { value: "60", label: "1 hour" },
+    { value: "120", label: "2 hours" },
+    { value: "180", label: "3+ hours" },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
 
+    if (!form.goal.trim()) {
+      setError("Please describe your goal");
+      setLoading(false);
+      return;
+    }
+
+    // Generate session ID for this recovery attempt
+    const sessionId = trackingService.generateId();
+
+    // Track input submission
+    trackingService.trackInputSubmitted(sessionId, form);
+
     try {
-      const response = await fetch("http://localhost:3002/recovery", {
+      const payload = {
+        ...form,
+        capacity: parseInt(form.capacity),
+      };
+      console.log("[InputForm] Sending recovery request:", payload);
+
+      const response = await fetch("http://localhost:3000/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          capacity: parseInt(form.capacity),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        alert("Error: " + error.error);
+        const errorData = await response.json();
+        console.error("[InputForm] Server error:", errorData);
+        setError(errorData.error || "Failed to get recovery step");
         setLoading(false);
         return;
       }
 
-      const data = await response.json();
+      const result = await response.json();
+      console.log("[InputForm] Recovery step received:", result.data);
 
-      // Save to session storage and navigate
-      sessionStorage.setItem("lastRecovery", JSON.stringify(data));
-      navigate("/recovery", { state: data });
-    } catch (error) {
-      alert("Error: " + error.message);
+      // Track recovery generation
+      trackingService.trackRecoveryGenerated(
+        sessionId,
+        result.data,
+        result.data.trace_id,
+      );
+
+      // Store session ID for feedback tracking
+      const recoveryWithSession = { ...result.data, sessionId };
+      sessionStorage.setItem(
+        "lastRecovery",
+        JSON.stringify(recoveryWithSession),
+      );
+      navigate("/recovery", { state: recoveryWithSession });
+    } catch (err) {
+      console.error("[InputForm] Network error:", err);
+      setError(err.message || "Network error. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>What's holding you back?</h2>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Goal Domain</label>
-            <select
-              name="domain"
-              value={form.domain}
-              onChange={handleChange}
-              style={styles.input}
-            >
-              <option>Work / Productivity</option>
-              <option>Learning</option>
-              <option>Health / Wellness</option>
-              <option>Financial</option>
-            </select>
+    <div className={styles.container}>
+      <div className={styles.wrapper}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Find Your Recovery Step</h1>
+          <p className={styles.subtitle}>
+            Answer a few questions so we can suggest personalized next steps
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>What area of life?</label>
+            <div className={styles.selectGrid}>
+              {domains.map((domain) => (
+                <button
+                  key={domain}
+                  type="button"
+                  onClick={() =>
+                    handleChange({ target: { name: "domain", value: domain } })
+                  }
+                  className={styles.selectOption}
+                  style={{
+                    backgroundColor:
+                      form.domain === domain ? "#3b82f6" : "#f3f4f6",
+                    color: form.domain === domain ? "#ffffff" : "#374151",
+                  }}
+                >
+                  {domain}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>What goal did you fall off?</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Describe your goal</label>
             <textarea
               name="goal"
               value={form.goal}
               onChange={handleChange}
-              placeholder="E.g., 'Exercise 3x per week' or 'Read for 20 minutes daily'"
+              placeholder="E.g., 'Exercise 3 times per week' or 'Drink 8 glasses of water daily'"
               maxLength={240}
-              style={{ ...styles.input, minHeight: "80px" }}
+              className={styles.textarea}
               required
             />
-            <small style={styles.counter}>{form.goal.length}/240</small>
+            <div className={styles.counter}>
+              {form.goal.length} / 240 characters
+            </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>How long has it been?</label>
-            <select
-              name="time_gap"
-              value={form.time_gap}
-              onChange={handleChange}
-              style={styles.input}
-            >
-              <option>1-2 days</option>
-              <option>3-7 days</option>
-              <option>1-4 weeks</option>
-              <option>1+ months</option>
-            </select>
+          <div className={styles.gridTwoCols}>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>
+                How long since you stopped?
+              </label>
+              <select
+                name="time_gap"
+                value={form.time_gap}
+                onChange={handleChange}
+                className={styles.select}
+              >
+                {timeGaps.map((gap) => (
+                  <option key={gap} value={gap}>
+                    {gap}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>How much time do you have?</label>
+              <select
+                name="capacity"
+                value={form.capacity}
+                onChange={handleChange}
+                className={styles.select}
+              >
+                {capacities.map((cap) => (
+                  <option key={cap.value} value={cap.value}>
+                    {cap.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Why did it break?</label>
-            <select
-              name="reason"
-              value={form.reason}
-              onChange={handleChange}
-              style={styles.input}
-            >
-              <option>Low energy / burnout</option>
-              <option>Overwhelmed</option>
-              <option>Life event / schedule change</option>
-              <option>Lost interest</option>
-              <option>Too hard / unclear next step</option>
-              <option>Other</option>
-            </select>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>What happened?</label>
+            <div className={styles.selectGrid}>
+              {reasons.map((reason) => (
+                <button
+                  key={reason}
+                  type="button"
+                  onClick={() =>
+                    handleChange({ target: { name: "reason", value: reason } })
+                  }
+                  className={styles.selectOption}
+                  style={{
+                    backgroundColor:
+                      form.reason === reason ? "#3b82f6" : "#f3f4f6",
+                    color: form.reason === reason ? "#ffffff" : "#374151",
+                  }}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              What capacity do you have right now?
-            </label>
-            <select
-              name="capacity"
-              value={form.capacity}
-              onChange={handleChange}
-              style={styles.input}
-            >
-              <option value="2">2 minutes</option>
-              <option value="5">5 minutes</option>
-              <option value="10">10 minutes</option>
-              <option value="15">15 minutes</option>
-            </select>
-          </div>
+          {error && <div className={styles.error}>{error}</div>}
 
           <button
             type="submit"
             disabled={loading || !form.goal.trim()}
+            className={styles.submitButton}
             style={{
-              ...styles.submitBtn,
               opacity: loading || !form.goal.trim() ? 0.6 : 1,
               cursor: loading || !form.goal.trim() ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? "Finding your recovery step..." : "Get my recovery step"}
+            {loading ? "Finding your step..." : "Get Recovery Step"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            className={styles.cancelButton}
+          >
+            Back to Dashboard
           </button>
         </form>
-
-        <button onClick={() => navigate("/")} style={styles.backBtn}>
-          ← Back
-        </button>
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-    padding: "20px",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    padding: "40px",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
-    maxWidth: "600px",
-    width: "100%",
-  },
-  title: {
-    fontSize: "1.8rem",
-    marginBottom: "28px",
-    color: "#1f2937",
-  },
-  form: {
-    marginBottom: "20px",
-  },
-  formGroup: {
-    marginBottom: "20px",
-    display: "flex",
-    flexDirection: "column",
-  },
-  label: {
-    fontWeight: "600",
-    marginBottom: "8px",
-    color: "#374151",
-    fontSize: "0.95rem",
-  },
-  input: {
-    padding: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "6px",
-    fontSize: "1rem",
-    fontFamily: "inherit",
-  },
-  counter: {
-    fontSize: "0.75rem",
-    color: "#9ca3af",
-    marginTop: "4px",
-  },
-  submitBtn: {
-    backgroundColor: "#2563eb",
-    color: "white",
-    padding: "12px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "1rem",
-    fontWeight: "600",
-    width: "100%",
-    marginBottom: "12px",
-  },
-  backBtn: {
-    backgroundColor: "#e5e7eb",
-    color: "#1f2937",
-    padding: "10px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    width: "100%",
-  },
-};
 
 export default InputForm;

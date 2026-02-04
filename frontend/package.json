@@ -1,7 +1,7 @@
 {
-  "name": "recovery-agent-frontend",
+  "name": "dayzero-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Recovery Agent - post-failure recovery system",
+  "description": "DayZero - Goal Recovery System",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.94.0",
+    "lucide-react": "^0.563.0",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.0.0"
