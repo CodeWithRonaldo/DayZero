@@ -9,3 +9,10 @@ build/
 .vscode/settings.json
 backend/.env
 frontend/.env
+server/.env
+server/constant.js
+
+# Sensitive files that should never be committed
+**/*secret*
+**/*key*.json
+**/*credentials*

@@ -2,7 +2,6 @@ import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import { trackGemini } from "opik-gemini";
 import { Opik } from "opik";
-import { GEMINI_API_KEY } from "./constant.js";
 import { getPrompt } from "./prompts.js";
 import { validateOutput, addSafetyNote } from "./validation.js";
 import dotenv from "dotenv";
@@ -25,7 +24,7 @@ app.use((req, res, next) => {
 
 // Initialize the original Gemini client
 const genAI = new GoogleGenAI({
-  apiKey: GEMINI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 // Wrap the client with Opik tracking
