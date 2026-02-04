@@ -34,7 +34,8 @@ function RecoveryOutput({ onAddHistory }) {
 
     try {
       // Send feedback to backend
-      const response = await fetch("http://localhost:3000/feedback", {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const response = await fetch(`${API_URL}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

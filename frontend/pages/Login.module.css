@@ -4,6 +4,7 @@
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+  align-items: center;
 }
 
 .background {
@@ -43,14 +44,14 @@
 
 .content {
   width: 100%;
+  min-height: 50%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  padding: 64px;
+  gap: 48px;
+  padding: 48px;
   align-items: center;
   max-width: 1400px;
   margin: 0 auto;
-  
 }
 
 .branding {
@@ -87,9 +88,8 @@
 .brandTitle {
   font-size: 56px;
   font-weight: 800;
-  margin-bottom: 16px;
-  line-height: 1.1;
   margin: 0 0 16px 0;
+  line-height: 1.1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -97,7 +97,6 @@
   font-size: 20px;
   opacity: 0.95;
   line-height: 1.6;
-  margin-bottom: 48px;
   margin: 0 0 48px 0;
   font-weight: 400;
 }
@@ -173,7 +172,6 @@
   font-size: 32px;
   font-weight: 800;
   color: #111827;
-  margin-bottom: 8px;
   margin: 0 0 8px 0;
 }
 
@@ -188,7 +186,6 @@
   flex-direction: column;
   gap: 24px;
   margin-bottom: 24px;
-  
 }
 
 .formGroup {
@@ -434,6 +431,7 @@
   .container {
     min-height: 100vh;
     height: auto;
+    overflow-y: auto;
   }
 
   .content {
@@ -496,6 +494,8 @@
     height: auto;
     display: flex;
     align-items: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .content {
