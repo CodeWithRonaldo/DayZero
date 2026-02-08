@@ -260,6 +260,66 @@ Submit feedback for a recovery step.
 - Track success rates
 - Monitor improvement over time
 
+## Opik Online Evaluation
+
+DayZero uses [Opik by Comet ML](https://www.comet.com/site/products/opik/) for production monitoring, automated evaluation, and human review of AI-generated recovery steps.
+
+### Three Layers of Evaluation
+
+| Layer | Type | What It Does |
+|-------|------|-------------|
+| **User Feedback** | In-app buttons | Users rate steps as `helpful`, `too_much`, `doesnt_fit`, or `did_it` |
+| **LLM-as-Judge** | Automated (Opik Online Rules) | GPT-4o scores every trace on 4 dimensions automatically |
+| **Annotation Queue** | Human review | Manual review of flagged or mismatched traces |
+
+### Online Evaluation Rules
+
+An online evaluation rule is configured in the Opik dashboard to automatically score every production trace using an LLM judge. The rule evaluates each recovery step on 4 dimensions:
+
+| Score | Description |
+|-------|-------------|
+| `Actionability` | Is the step specific with a clear WHERE/HOW? |
+| `Capacity_Fit` | Does the step fit within the user's stated available time? |
+| `Relevance` | Does the step match the user's domain, goal, and reason? |
+| `Has_Stop_Condition` | Is there a clear, measurable stopping point? |
+
+Each score returns `0` or `1`. Scores are stored as feedback on each trace and visible in the Opik dashboard.
+
+**To set up the rule:**
+
+1. Go to your Opik project → **Rules** tab → **Create Rule**
+2. Set sampling rate to `100%`
+3. Use a custom prompt that references `{{input}}` and `{{output}}` trace variables
+4. Define 4 numeric scores (0-1) for each dimension above
+5. Save the rule — all new traces will be scored automatically
+
+### Annotation Queue
+
+For human-in-the-loop review, an annotation queue allows manual inspection of traces that need attention:
+
+- Traces where users gave negative feedback (`doesnt_fit`, `too_much`) but automated scores were high
+- Traces where automated scores flagged a `0` on any dimension
+- Edge cases the automated judge may miss
+
+**To set up:**
+
+1. Go to **Annotation Queues** → **Create Queue**
+2. Name: `DayZero Recovery Review`, Scope: `Trace`
+3. Add instructions for reviewers
+4. Select feedback definitions (`Actionability`, `Capacity_Fit`, `Relevance`, `Has_Stop_Condition`)
+5. Add traces from the traces list or individual trace view
+
+### Feedback Score Mapping
+
+User feedback is logged to Opik with numeric scores for tracking:
+
+| Feedback | Score |
+|----------|-------|
+| `helpful` | 1.0 |
+| `did_it` | 1.0 |
+| `too_much` | 0.5 |
+| `doesnt_fit` | 0.3 |
+
 ##  Security Best Practices
 
 - ✅ All sensitive API keys stored in environment variables
@@ -278,11 +338,11 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **Google Gemini AI** - For powering intelligent recovery recommendations
 - **Supabase** - For authentication and database services
